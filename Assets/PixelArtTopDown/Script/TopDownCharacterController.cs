@@ -6,10 +6,13 @@ namespace Cainos.PixelArtTopDown_Basic
     {
         [SerializeField] FloatingJoystick movementJoystick;
         [SerializeField] FloatingJoystick shootingJoystick;
+        [SerializeField] GameObject projectilePrefab;
 
         private float speed = 4;
         private Animator animator;
         private Rigidbody2D rb;
+        private float shootInterval = 0.5f;
+        private float timeSinceLastProjectile = 0f;
 
         private void Start()
         {
@@ -56,11 +59,15 @@ namespace Cainos.PixelArtTopDown_Basic
             direction.Normalize();
             // animator.SetBool("IsMoving", rb.velocity.magnitude > 0.1);
             // animator.SetInteger("Direction", (int)direction.x);
-
-            if (shootingJoystick.Horizontal != 0 || shootingJoystick.Vertical != 0)
+            if ((shootingJoystick.Horizontal != 0 || shootingJoystick.Vertical != 0)
+                && timeSinceLastProjectile > shootInterval)
             {
-                // Shoot
+                timeSinceLastProjectile = 0f;
+                var plasma = Instantiate(projectilePrefab);
+                var plasmaScript = plasma.GetComponent<Projectile>();
+                plasmaScript.Shoot(transform.position, direction);
             }
+            timeSinceLastProjectile += Time.deltaTime;
         }
 
         private void FixedUpdate()
