@@ -1,41 +1,50 @@
 using UnityEngine;
 
-public class Projectile : MonoBehaviour
+public class Projectile : MonoBehaviour, IProduct
 {
-    private Animator animator;
-    private Vector2 target;
-    private Vector2 startPosition;
-    private float speed = 5f;
+    [SerializeField] private string productName = "PlayerProjectile";
+    public string ProductName { get => productName; set => productName = value; }
 
-    private void Awake()
+    private Animator animator;
+    private Vector2 normalizeDirection;
+    private float speed = 12f;
+
+    public void Initialize(Vector2 direction)
     {
-        gameObject.SetActive(false);
+        normalizeDirection = direction;
+        Debug.Log(direction);
     }
+
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
     }
 
-    public void Shoot(Vector2 playerPosition, Vector2 t)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        gameObject.SetActive(true);
-        startPosition = playerPosition;
-        transform.position = playerPosition;
-        target = t;
+        animator.SetBool("Destroy", true);
+        speed = 0f;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            animator.SetBool("Destroy", true);
-        }
+        
+    }
+
+    public void ProjectileDestroy()
+    {
+        Destroy(gameObject);
     }
 
     // Update is called once per frame
     void Update()
     {
-        // transform.position = Vector2.MoveTowards(startPosition, target, speed * Time.deltaTime);
+        if (transform.position.magnitude > 30.0f)
+        {
+            Destroy(gameObject);
+        }
+        transform.Translate(normalizeDirection * speed * Time.deltaTime);
+        // transform.position = normalizeDirection * speed * Time.deltaTime;
     }
 }

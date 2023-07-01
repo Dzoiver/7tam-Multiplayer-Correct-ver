@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Zenject;
 
 namespace Cainos.PixelArtTopDown_Basic
 {
@@ -7,11 +8,12 @@ namespace Cainos.PixelArtTopDown_Basic
         [SerializeField] FloatingJoystick movementJoystick;
         [SerializeField] FloatingJoystick shootingJoystick;
         [SerializeField] GameObject projectilePrefab;
+        [SerializeField] ProjectileSpawner projectileSpawner;
 
         private float speed = 4;
         private Animator animator;
         private Rigidbody2D rb;
-        private float shootInterval = 0.5f;
+        private float shootInterval = 0.15f;
         private float timeSinceLastProjectile = 0f;
 
         private void Start()
@@ -63,9 +65,16 @@ namespace Cainos.PixelArtTopDown_Basic
                 && timeSinceLastProjectile > shootInterval)
             {
                 timeSinceLastProjectile = 0f;
-                var plasma = Instantiate(projectilePrefab);
-                var plasmaScript = plasma.GetComponent<Projectile>();
-                plasmaScript.Shoot(transform.position, direction);
+
+                Vector2 normalizeDirection;
+                normalizeDirection.x = shootingJoystick.Horizontal;
+                normalizeDirection.y = shootingJoystick.Vertical;
+
+                normalizeDirection.Normalize();
+                normalizeDirection *= 0.2f;
+                normalizeDirection.x += transform.position.x;
+                normalizeDirection.y += transform.position.y;
+                projectileSpawner.Create(normalizeDirection);
             }
             timeSinceLastProjectile += Time.deltaTime;
         }
