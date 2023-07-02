@@ -1,10 +1,8 @@
 using UnityEngine;
-using Zenject;
 
 public class ProjectileSpawner : Factory
 {
-    [Inject]
-    FloatingJoystick shootingJoystick;
+    [SerializeField] FloatingJoystick shootingJoystick;
 
     [SerializeField] private Projectile productPrefab;
 

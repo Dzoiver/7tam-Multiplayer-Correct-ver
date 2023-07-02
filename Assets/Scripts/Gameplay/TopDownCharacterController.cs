@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using Zenject;
+using Unity.Netcode;
 
 namespace Cainos.PixelArtTopDown_Basic
 {
-    public class TopDownCharacterController : MonoBehaviour
+    public class TopDownCharacterController : NetworkBehaviour
     {
+
         [SerializeField] FloatingJoystick movementJoystick;
         [SerializeField] FloatingJoystick shootingJoystick;
         [SerializeField] GameObject projectilePrefab;

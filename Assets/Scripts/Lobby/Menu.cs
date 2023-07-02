@@ -54,9 +54,12 @@ public class Menu : MonoBehaviour
         lobby.LeaveLobby();
     }
 
-    public void PlayButtonActivate()
+    public void PlayButtonSetInteractable(bool isInteractable)
     {
-        startButton.interactable = true;
+        if (isInteractable)
+            startButton.interactable = true;
+        else
+            startButton.interactable = false;
     }
 
     public void ConnectToLobby()

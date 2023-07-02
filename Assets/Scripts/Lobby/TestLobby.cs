@@ -114,11 +114,11 @@ public class TestLobby : MonoBehaviour
         return new Player
         {
             Data = new Dictionary<string, PlayerDataObject>
+                {
                     {
-                        {
-                            "PlayerName", new  PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName)
-                        }
+                        "PlayerName", new  PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, playerName)
                     }
+                }
         };
     }
 
@@ -130,9 +130,9 @@ public class TestLobby : MonoBehaviour
             joinedLobby = null;
             hostLobby = null;
         }
-        catch
+        catch (LobbyServiceException e)
         {
-            Debug.Log("something went wrong");
+            Debug.Log(e);
         }
     }
 
@@ -177,19 +177,30 @@ public class TestLobby : MonoBehaviour
             lobbyUpdateTimer -= Time.deltaTime;
             if (lobbyUpdateTimer < 0f)
             {
-                float lobbyUpdateTimerMax = 1.1f;
-                lobbyUpdateTimer = lobbyUpdateTimerMax;
-
-                Lobby lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
-                
-                joinedLobby = lobby;
-
-                if (joinedLobby.Players.Count > 1 && hostLobby != null)
+                try
                 {
-                    menu.PlayButtonActivate();
+                    float lobbyUpdateTimerMax = 1.1f;
+                    lobbyUpdateTimer = lobbyUpdateTimerMax;
+
+                    Lobby lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
+
+                    joinedLobby = lobby;
+                
+
+                    if (joinedLobby.Players.Count > 1 && hostLobby != null)
+                    {
+                        menu.PlayButtonSetInteractable(true);
+                    }
+                    else
+                    {
+                        menu.PlayButtonSetInteractable(false);
+                    }
+                    menu.UpdatePlayersList();
                 }
-                menu.UpdatePlayersList();
-                Debug.Log("Update players");
+                catch (LobbyServiceException e)
+                {
+                    Debug.Log(e);
+                }
             }
         }
     }
