@@ -6,16 +6,20 @@ using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using Zenject;
+using TMPro;
 
 public class TestLobby : MonoBehaviour
 {
     [Inject]
     Menu menu;
 
+    [SerializeField] TextMeshProUGUI playerNameText;
     private Lobby hostLobby;
-    private float heartbeatTimer;
     private Lobby joinedLobby;
+    private float heartbeatTimer;
+    private float lobbyUpdateTimer;
     private string playerName;
+    
     // Start is called before the first frame update
     private async void Start()
     {
@@ -29,8 +33,20 @@ public class TestLobby : MonoBehaviour
 
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
 
-        playerName = "Seifer" + Random.Range(0, 100);
+        playerName = "Player" + Random.Range(0, 100);
+        playerNameText.text += playerName;
         Debug.Log(playerName);
+    }
+
+    public Lobby GetCurrentLobby()
+    {
+        if (joinedLobby != null)
+            return joinedLobby;
+
+        if (hostLobby != null)
+            return hostLobby;
+
+        return null;
     }
 
     public string GetLobbyCode()
@@ -59,6 +75,7 @@ public class TestLobby : MonoBehaviour
             Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, createLobbyOptions);
 
             hostLobby = lobby;
+            joinedLobby = hostLobby;
             Debug.Log("Created Lobby! " + lobby.Name + " " + lobby.MaxPlayers + " lobby code: " + lobby.LobbyCode);
 
             PrintPlayers(hostLobby);
@@ -105,11 +122,13 @@ public class TestLobby : MonoBehaviour
         };
     }
 
-    private async void LeaveLobby()
+    public async void LeaveLobby()
     {
         try
         {
             await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, AuthenticationService.Instance.PlayerId);
+            joinedLobby = null;
+            hostLobby = null;
         }
         catch
         {
@@ -132,6 +151,16 @@ public class TestLobby : MonoBehaviour
         }
     }
 
+    public string ReturnPlayersList()
+    {
+        string playersList = "";
+        foreach (Player player in GetCurrentLobby().Players)
+        {
+            playersList += player.Data["PlayerName"].Value + "\n";
+        }
+        return playersList;
+    }
+
     private void PrintPlayers(Lobby lobby)
     {
         Debug.Log("Players in lobby " + lobby.Name);
@@ -141,8 +170,33 @@ public class TestLobby : MonoBehaviour
         }
     }
 
+    private async void HandleLobbyPollForUpdates()
+    {
+        if (joinedLobby != null)
+        {
+            lobbyUpdateTimer -= Time.deltaTime;
+            if (lobbyUpdateTimer < 0f)
+            {
+                float lobbyUpdateTimerMax = 1.1f;
+                lobbyUpdateTimer = lobbyUpdateTimerMax;
+
+                Lobby lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
+                
+                joinedLobby = lobby;
+
+                if (joinedLobby.Players.Count > 1 && hostLobby != null)
+                {
+                    menu.PlayButtonActivate();
+                }
+                menu.UpdatePlayersList();
+                Debug.Log("Update players");
+            }
+        }
+    }
+
     private void Update()
     {
         HandleLobbyHeartbeat();
+        HandleLobbyPollForUpdates();
     }
 }

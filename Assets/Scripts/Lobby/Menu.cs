@@ -16,6 +16,8 @@ public class Menu : MonoBehaviour
     [SerializeField] GameObject joinPanel;
     [SerializeField] GameObject inputField;
     [SerializeField] GameObject lobbyNameText;
+    [SerializeField] TextMeshProUGUI playersList;
+    [SerializeField] Button startButton;
     public void CreateLobby()
     {
         lobby.CreateLobby();
@@ -28,6 +30,12 @@ public class Menu : MonoBehaviour
         joinPanel.SetActive(false);
         hostedPanel.SetActive(true);
         lobbyNameText.GetComponent<TextMeshProUGUI>().text = lobby.GetLobbyCode();
+        UpdatePlayersList();
+    }
+
+    public void UpdatePlayersList()
+    {
+        playersList.text = lobby.ReturnPlayersList();
     }
 
     public void OpenJoinPanel()
@@ -41,13 +49,14 @@ public class Menu : MonoBehaviour
         joinPanel.SetActive(false);
         hostedPanel.SetActive(false);
         mainMenu.SetActive(true);
+        startButton.interactable = false;
+
+        lobby.LeaveLobby();
     }
 
-    public void CloseEverything()
+    public void PlayButtonActivate()
     {
-        joinPanel.SetActive(false);
-        hostedPanel.SetActive(false);
-        mainMenu.SetActive(false);
+        startButton.interactable = true;
     }
 
     public void ConnectToLobby()
