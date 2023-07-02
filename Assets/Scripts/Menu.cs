@@ -8,16 +8,25 @@ public class Menu : MonoBehaviour
     [Inject]
     TestLobby lobby;
 
+    [Inject][HideInInspector]
+    public MessageBox mesBox;
+
     [SerializeField] GameObject mainMenu;
     [SerializeField] GameObject hostedPanel;
     [SerializeField] GameObject joinPanel;
     [SerializeField] GameObject inputField;
     [SerializeField] GameObject lobbyNameText;
+    public void CreateLobby()
+    {
+        lobby.CreateLobby();
+        mesBox.DisplayMessage("Creating lobby...");
+    }
+
     public void OpenLobbyPanel()
     {
         mainMenu.SetActive(false);
+        joinPanel.SetActive(false);
         hostedPanel.SetActive(true);
-        lobby.CreateLobby();
         lobbyNameText.GetComponent<TextMeshProUGUI>().text = lobby.GetLobbyCode();
     }
 
@@ -27,22 +36,35 @@ public class Menu : MonoBehaviour
         joinPanel.SetActive(true);
     }
 
-    public void CloseLobbyPanel()
+    public void ReturnToMenu()
     {
+        joinPanel.SetActive(false);
         hostedPanel.SetActive(false);
         mainMenu.SetActive(true);
     }
 
-    public void CloseJoinPanel()
+    public void CloseEverything()
     {
-        mainMenu.SetActive(true);
         joinPanel.SetActive(false);
+        hostedPanel.SetActive(false);
+        mainMenu.SetActive(false);
     }
 
     public void ConnectToLobby()
     {
-        TextMeshProUGUI inputText = inputField.GetComponent<TextMeshProUGUI>();
-        Debug.Log(inputText.text);
-        lobby.JoinLobby(inputText.text);
+        TMP_InputField inputText = inputField.GetComponent<TMP_InputField>();
+        if (inputText.text.Length == 6)
+        {
+            Debug.Log("Trying to join by code: " + inputText.text);
+            mesBox.DisplayMessage("Joining a lobby...");
+            lobby.JoinLobby(inputText.text.ToUpper());
+        }
+        else
+        {
+            Debug.Log("The code length must be 6 symbols");
+            mesBox.DisplayMessage("The code length must be 6 symbols!", true);
+            // Display some message on the screen
+        }
+
     }
 }
