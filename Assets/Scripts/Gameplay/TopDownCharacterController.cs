@@ -6,17 +6,20 @@ namespace Cainos.PixelArtTopDown_Basic
 {
     public class TopDownCharacterController : NetworkBehaviour
     {
-
         [SerializeField] FloatingJoystick movementJoystick;
         [SerializeField] FloatingJoystick shootingJoystick;
         [SerializeField] GameObject projectilePrefab;
         [SerializeField] ProjectileSpawner projectileSpawner;
+
+        [SerializeField] GameObject projectile;
 
         private float speed = 4;
         private Animator animator;
         private Rigidbody2D rb;
         private float shootInterval = 0.15f;
         private float timeSinceLastProjectile = 0f;
+
+        Vector2 dir = Vector2.zero;
 
         private void Start()
         {
@@ -26,8 +29,9 @@ namespace Cainos.PixelArtTopDown_Basic
 
         private void Update()
         {
-            /*
-            Vector2 dir = Vector2.zero;
+            if (!IsOwner)
+                return;
+
             if (Input.GetKey(KeyCode.A))
             {
                 dir.x = -1;
@@ -50,11 +54,16 @@ namespace Cainos.PixelArtTopDown_Basic
                 animator.SetInteger("Direction", 0);
             }
 
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                GameObject spawnedProjectile = Instantiate(projectile, transform);
+                spawnedProjectile.GetComponent<NetworkObject>().Spawn(true);
+            }
+
             dir.Normalize();
             animator.SetBool("IsMoving", dir.magnitude > 0);
 
-            newVector.x = rb.position.x + dir.x * speed * Time.deltaTime;
-            newVector.y = rb.position.y + dir.y * speed * Time.deltaTime;
+            /*
             */
 
 
@@ -73,20 +82,21 @@ namespace Cainos.PixelArtTopDown_Basic
                 normalizeDirection.y = shootingJoystick.Vertical;
 
                 normalizeDirection.Normalize();
-                normalizeDirection *= 0.2f;
+                normalizeDirection *= 0.2f; // Make projectiles spawn a bit infornt of player so they don't stack inside walls on spawn
                 normalizeDirection.x += transform.position.x;
                 normalizeDirection.y += transform.position.y;
                 projectileSpawner.Create(normalizeDirection);
             }
             timeSinceLastProjectile += Time.deltaTime;
         }
-
         private void FixedUpdate()
         {
             Vector2 newVector = new Vector2();
 
-            newVector.x = rb.position.x + movementJoystick.Horizontal * speed * Time.deltaTime;
-            newVector.y = rb.position.y + movementJoystick.Vertical * speed * Time.deltaTime;
+
+
+            newVector.x = rb.position.x + dir.x * speed * Time.deltaTime;
+            newVector.y = rb.position.y + dir.y * speed * Time.deltaTime;
 
 
             if (movementJoystick.Horizontal > 0)

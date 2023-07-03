@@ -1,6 +1,7 @@
 using UnityEngine;
+using Unity.Netcode;
 
-public class Projectile : MonoBehaviour, IProduct
+public class Projectile : NetworkBehaviour, IProduct
 {
     [SerializeField] private string productName = "PlayerProjectile";
     public string ProductName { get => productName; set => productName = value; }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 public class ProjectileSpawner : Factory
 {
@@ -10,6 +11,7 @@ public class ProjectileSpawner : Factory
     {
         // create a Prefab instance and get the product component
         GameObject instance = Instantiate(productPrefab.gameObject, position, Quaternion.identity);
+        instance.GetComponent<NetworkObject>().Spawn(true);
         Projectile newProduct = instance.GetComponent<Projectile>();
 
         Vector2 normalizeDirection;
