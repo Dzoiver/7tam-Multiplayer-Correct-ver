@@ -8,25 +8,28 @@ public class MessageBox : MonoBehaviour
 {
     [SerializeField] GameObject button;
     [SerializeField] TextMeshProUGUI textComponent;
-    // Start is called before the first frame update
-    void Start()
-    {
-        gameObject.SetActive(false);
-    }
 
     public void DisplayMessage(string message, bool ShowButton = false)
     {
-        Debug.Log("Displaying a message");
+        button.SetActive(false);
         textComponent.text = message;
         gameObject.SetActive(true);
 
         if (ShowButton)
             button.SetActive(true);
+
+    }
+
+    public void SetName()
+    {
+        textComponent.text = "Enter lobby name";
+        gameObject.SetActive(true);
+        button.SetActive(true);
     }
 
     public void RemoveMessage()
     {
-        gameObject.SetActive(false);
         button.SetActive(false);
+        gameObject.SetActive(false);
     }
 }

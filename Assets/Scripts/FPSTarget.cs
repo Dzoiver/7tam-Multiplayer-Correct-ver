@@ -10,7 +10,9 @@ public class FPSTarget : MonoBehaviour
         if (instance != null)
         {
             Destroy(gameObject);
+            return;
         }
+        instance = this;
         DontDestroyOnLoad(this);
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = target;

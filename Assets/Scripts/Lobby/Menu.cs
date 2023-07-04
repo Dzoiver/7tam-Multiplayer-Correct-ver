@@ -15,27 +15,22 @@ public class Menu : MonoBehaviour
     [SerializeField] GameObject hostedPanel;
     [SerializeField] GameObject joinPanel;
     [SerializeField] GameObject inputField;
-    [SerializeField] GameObject lobbyNameText;
     [SerializeField] TextMeshProUGUI playersList;
     [SerializeField] Button startButton;
+    [SerializeField] LoadingScene loadingScene;
+
+
+    [SerializeField] TMP_InputField lobbyNameHost;
     public void CreateLobby()
     {
-        lobby.CreateLobby();
-        mesBox.DisplayMessage("Creating lobby...");
+        mesBox.DisplayMessage("Creating a lobby");
+        lobby.CreateLobby(lobbyNameHost.text);
+        // mesBox.DisplayMessage("Creating lobby...");
     }
 
-    public void OpenLobbyPanel()
+    public void JoinLobby()
     {
-        mainMenu.SetActive(false);
-        joinPanel.SetActive(false);
-        hostedPanel.SetActive(true);
-        lobbyNameText.GetComponent<TextMeshProUGUI>().text = lobby.GetLobbyCode();
-        UpdatePlayersList();
-    }
-
-    public void UpdatePlayersList()
-    {
-        playersList.text = lobby.ReturnPlayersList();
+        loadingScene.LoadGame(1);
     }
 
     public void OpenJoinPanel()
@@ -62,21 +57,25 @@ public class Menu : MonoBehaviour
             startButton.interactable = false;
     }
 
+    public void SetLobbyName()
+    {
+        mainMenu.SetActive(false);
+        mesBox.SetName();
+    }
+
     public void ConnectToLobby()
     {
         TMP_InputField inputText = inputField.GetComponent<TMP_InputField>();
-        if (inputText.text.Length == 6)
+        if (inputText.text.Length > 0)
         {
-            Debug.Log("Trying to join by code: " + inputText.text);
+            Debug.Log("Trying to join by name: " + inputText.text + ".");
             mesBox.DisplayMessage("Joining a lobby...");
-            lobby.JoinLobby(inputText.text.ToUpper());
+            lobby.JoinLobbyByName(inputText.text);
         }
         else
         {
-            Debug.Log("The code length must be 6 symbols");
-            mesBox.DisplayMessage("The code length must be 6 symbols!", true);
-            // Display some message on the screen
+            Debug.Log("Name can't be empty");
+            mesBox.DisplayMessage("Enter lobby name!", true);
         }
-
     }
 }
