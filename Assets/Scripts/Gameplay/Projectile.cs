@@ -13,7 +13,6 @@ public class Projectile : NetworkBehaviour, IProduct
     public void Initialize(Vector2 direction)
     {
         normalizeDirection = direction;
-        Debug.Log(direction);
     }
 
     // Start is called before the first frame update
@@ -24,8 +23,13 @@ public class Projectile : NetworkBehaviour, IProduct
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        animator.SetBool("Destroy", true);
-        speed = 0f;
+        if (gameObject.layer != collision.gameObject.layer ||
+            collision.gameObject.CompareTag("Enemy")
+            )
+        {
+            animator.SetBool("Destroy", true);
+            speed = 0f;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

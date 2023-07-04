@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 public interface IProduct
 {
@@ -7,7 +8,7 @@ public interface IProduct
     public void Initialize(Vector2 direction);
 }
 
-public abstract class Factory : MonoBehaviour
+public abstract class Factory : NetworkBehaviour
 {
     public abstract IProduct Create(Vector3 position);
 }

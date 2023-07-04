@@ -5,6 +5,8 @@ using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 using System.Threading.Tasks;
+using Unity.Services.Core;
+using Unity.Services.Authentication;
 
 public class TestRelay : MonoBehaviour
 {
@@ -20,10 +22,30 @@ public class TestRelay : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(this);
     }
+
+    private async void Start()
+    {
+        if (UnityServices.State == ServicesInitializationState.Uninitialized)
+        {
+            await UnityServices.InitializeAsync();
+            AuthenticationService.Instance.ClearSessionToken();
+            AuthenticationService.Instance.SignedIn += () =>
+            {
+                Debug.Log("Signed in " + AuthenticationService.Instance.PlayerId);
+            };
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        }
+    }
+
+    public async void CreateRealyViaButton()
+    {
+        await CreateRelay();
+    }
     public async Task<string> CreateRelay()
     {
         try
         {
+            Debug.Log("Starting creating relay");
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3);
 
             string relayCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
@@ -34,6 +56,7 @@ public class TestRelay : MonoBehaviour
 
             NetworkManager.Singleton.StartHost();
 
+            Debug.Log("Relay code: " + relayCode);
             return relayCode;
         } catch (RelayServiceException e)
         {
