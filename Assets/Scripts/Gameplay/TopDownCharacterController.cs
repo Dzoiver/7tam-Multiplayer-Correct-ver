@@ -8,12 +8,8 @@ public class TopDownCharacterController : NetworkBehaviour
 {
     [SerializeField] FloatingJoystick movementJoystick;
     [SerializeField] FloatingJoystick shootingJoystick;
-    [SerializeField] GameObject projectilePrefab;
     [SerializeField] ProjectileSpawner projectileSpawner;
-
-    [SerializeField] GameObject projectile;
     [SerializeField] TextMeshProUGUI playerName;
-
     [SerializeField] Slider healthSlider;
 
     private float speed = 4;
