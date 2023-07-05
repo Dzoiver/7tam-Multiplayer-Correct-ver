@@ -19,13 +19,6 @@ public class ProjectileSpawner : Factory
 
         normalizeDirection.Normalize();
 
-        /*
-        if (IsClient)
-        {
-            SpawnProjectileServerRpc(position, normalizeDirection);
-            // Ask server to spawn
-        }
-        */
         // each product contains its own logic
         newProduct.Initialize(normalizeDirection);
 
@@ -46,6 +39,7 @@ public class ProjectileSpawner : Factory
             return;
         GameObject instance = Instantiate(productPrefab.gameObject, position, Quaternion.identity);
         Projectile newProduct = instance.GetComponent<Projectile>();
+        newProduct.gameObject.tag = "EnemyProjectile";
         newProduct.Initialize(direction);
     }
 
@@ -56,6 +50,7 @@ public class ProjectileSpawner : Factory
             return;
         GameObject instance = Instantiate(productPrefab.gameObject, position, Quaternion.identity);
         Projectile newProduct = instance.GetComponent<Projectile>();
+        newProduct.gameObject.tag = "EnemyProjectile";
         newProduct.Initialize(direction);
     }
 }

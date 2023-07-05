@@ -17,11 +17,30 @@ public class TestLobby : MonoBehaviour
     [SerializeField] LoadingScene loadingScene;
     private Lobby hostLobby;
     private Lobby joinedLobby;
+    private bool isGameStarted = false;
     private float heartbeatTimer;
     private float lobbyUpdateTimer;
-    private string playerName;
+    private string playerName = "No name";
     string KEY_START_GAME = "StartGame_RelayCode";
     private string foundLobbyId = "";
+
+    public static TestLobby instance;
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+        DontDestroyOnLoad(this);
+    }
+
+    public string GetPlayerName()
+    {
+        return playerName;
+    }
 
     public bool IsHost()
     {
@@ -33,7 +52,6 @@ public class TestLobby : MonoBehaviour
     // Start is called before the first frame update
     private async void Start()
     {
-        DontDestroyOnLoad(this);
         await UnityServices.InitializeAsync();
         AuthenticationService.Instance.ClearSessionToken();
 
@@ -56,7 +74,7 @@ public class TestLobby : MonoBehaviour
 
         if (hostLobby != null)
             return hostLobby;
-
+        Debug.Log("Returning null. He didn't join any lobby lol");
         return null;
     }
 
@@ -130,7 +148,7 @@ public class TestLobby : MonoBehaviour
 
             Debug.Log("Lobbies without filter found: " + queryResponse.Results.Count);
 
-            FindLobbyWithName(lobbyName);
+            // FindLobbyWithName(lobbyName);
 
             if (queryResponse.Results.Count > 0)
             {
@@ -153,6 +171,7 @@ public class TestLobby : MonoBehaviour
             {
                 Debug.Log("Lobby was found, joining...");
                 joinedLobby = await Lobbies.Instance.JoinLobbyByIdAsync(foundLobbyId, joinLobbyByIdOptions);
+                Debug.Log("Checking the lobby: " + joinedLobby);
 
                 menu.JoinLobby();
 
@@ -266,10 +285,9 @@ public class TestLobby : MonoBehaviour
             // Start Game!
             if (!IsHost())
             {
+                Debug.Log("Starting the game");
                 TestRelay.instance.JoinRelay(joinedLobby.Data[KEY_START_GAME].Value);
             }
-
-            joinedLobby = null;
         }
     }
 
@@ -288,12 +306,12 @@ public class TestLobby : MonoBehaviour
                     Lobby lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
 
                     joinedLobby = lobby;
-                    Debug.Log("Lobby is still alive");
                     if (joinedLobby.Data[KEY_START_GAME].Value != "0")
                     {
                         // Start Game!
-                        if (!IsHost())
+                        if (!IsHost() && !isGameStarted)
                         {
+                            isGameStarted = true;
                             TestRelay.instance.JoinRelay(joinedLobby.Data[KEY_START_GAME].Value);
                         }
                     }

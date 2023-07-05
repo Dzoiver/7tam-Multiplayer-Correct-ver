@@ -21,20 +21,28 @@ public class Projectile : NetworkBehaviour, IProduct
         animator = GetComponent<Animator>();
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (gameObject.layer != collision.gameObject.layer ||
-            collision.gameObject.CompareTag("Enemy")
-            )
+        if (collision.gameObject.CompareTag("Enemy") && !IsOwner && gameObject.CompareTag("Projectile"))
         {
             animator.SetBool("Destroy", true);
             speed = 0f;
         }
+
+        if (collision.gameObject.CompareTag("Player") && !IsOwner && gameObject.CompareTag("EnemyProjectile"))
+        {
+            animator.SetBool("Destroy", true);
+            speed = 0f;
+        }
+
+
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    [ClientRpc]
+    private void DestryoProjectileClientRpc()
     {
-        
+        animator.SetBool("Destroy", true);
+        speed = 0f;
     }
 
     public void ProjectileDestroy()

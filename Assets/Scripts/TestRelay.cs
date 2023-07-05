@@ -23,9 +23,18 @@ public class TestRelay : MonoBehaviour
         DontDestroyOnLoad(this);
     }
 
-    private async void Start()
+    public bool IsAuthorizing()
     {
         if (UnityServices.State == ServicesInitializationState.Uninitialized)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private async void Start()
+    {
+        if (TestLobby.instance == null)
         {
             await UnityServices.InitializeAsync();
             AuthenticationService.Instance.ClearSessionToken();
