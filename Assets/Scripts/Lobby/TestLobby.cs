@@ -235,12 +235,15 @@ public class TestLobby : MonoBehaviour
             await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, AuthenticationService.Instance.PlayerId);
             joinedLobby = null;
             hostLobby = null;
+            Destroy(gameObject);
         }
         catch (LobbyServiceException e)
         {
             Debug.Log(e);
         }
     }
+
+
 
     private async void HandleLobbyHeartbeat()
     {
@@ -293,7 +296,7 @@ public class TestLobby : MonoBehaviour
 
     private async void HandleLobbyPollForUpdates()
     {
-        if (joinedLobby != null)
+        if (joinedLobby != null && !isGameStarted)
         {
             lobbyUpdateTimer -= Time.deltaTime;
             if (lobbyUpdateTimer < 0f)

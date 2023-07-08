@@ -4,17 +4,19 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class GameFlow : MonoBehaviour
 {
     [SerializeField] GameObject winnerPanel;
     [SerializeField] GameObject waitingPanel;
     [SerializeField] TextMeshProUGUI winnerText;
-    private int coins = 0;
     private int playersConnected = 0;
     private int playersAlive = 0;
     public bool canPlayerMove = false;
     static public GameFlow instance;
+    private Dictionary<TopDownCharacterController, int> playerList = new Dictionary<TopDownCharacterController, int>();
+
     private void Awake()
     {
         if (instance != null)
@@ -25,10 +27,19 @@ public class GameFlow : MonoBehaviour
         instance = this;
     }
 
-    public void ShowWinner(string winnerName)
+    public void AddPlayerToList(TopDownCharacterController player, int id)
+    {
+        playerList.Add(player, id);
+        PlayerHasConnected();
+    }
+
+    public void ShowWinner()
     {
         winnerPanel.SetActive(true);
-        winnerText.text = winnerName + " is the winner! He collected " + coins + " coins!";
+        TopDownCharacterController player = playerList.First().Key;
+        string playerName = player.Name;
+        int coins = player.CoinCount;
+        winnerText.text = playerName + " is the winner! He collected " + coins + " coins!";
     }
 
     public void StartMatch()
@@ -38,7 +49,7 @@ public class GameFlow : MonoBehaviour
         Debug.Log("Starting match");
     }
 
-    public void PlayerHasConnected()
+    private void PlayerHasConnected()
     {
         Debug.Log("Player connected");
         playersConnected++;
@@ -49,26 +60,22 @@ public class GameFlow : MonoBehaviour
         }
     }
 
-    public void OnPlayerDeath(string playerName)
+    public void OnPlayerDeath(TopDownCharacterController player)
     {
-        Debug.Log(playerName + " died");
+        Debug.Log(player.Name + " died");
         playersAlive--;
+        playerList.Remove(player);
         if (playersAlive == 1)
-            ShowWinner(playerName);
+            ShowWinner();
     }
 
     public void GoBackToLobbyScene()
     {
+        // Disconnect from relay and close the lobby
+        Debug.Log("Trying to leave the lobby");
+        TestLobby.instance.LeaveLobby();
+        Debug.Log("Trying to leave the relay");
+        TestRelay.instance.DisconnectFromRelay();
         SceneManager.LoadScene(0);
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

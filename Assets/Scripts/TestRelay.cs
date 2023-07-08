@@ -46,7 +46,7 @@ public class TestRelay : MonoBehaviour
         }
     }
 
-    public async void CreateRealyViaButton()
+    public async void CreateRelayViaButton()
     {
         await CreateRelay();
     }
@@ -84,11 +84,21 @@ public class TestRelay : MonoBehaviour
             RelayServerData relayServerData = new RelayServerData(joinAllocation, "dtls");
 
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
-
+            if (!NetworkManager.Singleton.IsConnectedClient)
             NetworkManager.Singleton.StartClient();
         } catch (RelayServiceException e)
         {
             Debug.Log(e);
+        }
+    }
+
+    public void DisconnectFromRelay()
+    {
+        if (NetworkManager.Singleton.IsHost)
+        { 
+            NetworkManager.Singleton.Shutdown();
+            if (NetworkManager.Singleton != null)
+                Destroy(NetworkManager.Singleton.gameObject);
         }
     }
 }

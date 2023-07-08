@@ -11,6 +11,7 @@ public class TopDownCharacterController : NetworkBehaviour
     [SerializeField] ProjectileSpawner projectileSpawner;
     [SerializeField] TextMeshProUGUI playerName;
     [SerializeField] Slider healthSlider;
+    [SerializeField] TextMeshProUGUI coinsUI;
 
     private float speed = 4;
     private Animator animator;
@@ -20,21 +21,27 @@ public class TopDownCharacterController : NetworkBehaviour
 
     private float health = 100f;
     private float maxHealth = 100f;
-    private bool canMove = false;
+    private int coinCount;
+    public string name = "player";
+
+    public string Name
+    {
+        get {return name;}
+    }
+
+    public int CoinCount
+    {
+        get { return coinCount; }
+    }
 
     Vector2 dir = Vector2.zero;
-
-    public void AllowMovement(bool value)
-    {
-        canMove = value;
-    }
 
     private void TakeDamage()
     {
         health -= 10;
         if (health <= 0)
         {
-            GameFlow.instance.OnPlayerDeath(playerName.text);
+            GameFlow.instance.OnPlayerDeath(this);
             Destroy(gameObject);
         }
         healthSlider.value = health / maxHealth;
@@ -52,6 +59,13 @@ public class TopDownCharacterController : NetworkBehaviour
         {
             TakeDamageClientRpc();
         }
+
+        if (collision.gameObject.CompareTag("Coin"))
+        {
+            coinCount++;
+            coinsUI.text = "Coins: " + coinCount.ToString();
+            collision.gameObject.SetActive(false);
+        }
     }
 
     [ServerRpc]
@@ -68,7 +82,8 @@ public class TopDownCharacterController : NetworkBehaviour
 
     private void Start()
     {
-        GameFlow.instance.PlayerHasConnected();
+        // GameFlow.instance.PlayerHasConnected();
+        GameFlow.instance.AddPlayerToList(this, (int)OwnerClientId);
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
 
@@ -80,9 +95,16 @@ public class TopDownCharacterController : NetworkBehaviour
 
         if (TestLobby.instance != null && !IsOwner)
         {
-            playerName.text = TestLobby.instance.GetCurrentLobby().
+            
+            name = TestLobby.instance.GetCurrentLobby().
                 Players[(int)OwnerClientId].Data["PlayerName"].Value;
+            playerName.text = Name;
             // Set other players name to their var
+        }
+
+        if (IsOwner)
+        {
+            coinsUI.gameObject.SetActive(true);
         }
 
         if (!IsOwner)
