@@ -20,14 +20,21 @@ public class TopDownCharacterController : NetworkBehaviour
 
     private float health = 100f;
     private float maxHealth = 100f;
+    private bool canMove = false;
 
     Vector2 dir = Vector2.zero;
+
+    public void AllowMovement(bool value)
+    {
+        canMove = value;
+    }
 
     private void TakeDamage()
     {
         health -= 10;
         if (health <= 0)
         {
+            GameFlow.instance.OnPlayerDeath(playerName.text);
             Destroy(gameObject);
         }
         healthSlider.value = health / maxHealth;
@@ -61,22 +68,21 @@ public class TopDownCharacterController : NetworkBehaviour
 
     private void Start()
     {
+        GameFlow.instance.PlayerHasConnected();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
 
         if (TestLobby.instance != null && IsOwner)
         {
-            playerName.text = TestLobby.instance.GetPlayerName(); // Set own name to local PlayerName
+            playerName.text = TestLobby.instance.GetPlayerName();
+            // Set own name to local PlayerName
         }
 
         if (TestLobby.instance != null && !IsOwner)
         {
-            Debug.Log("Trying to set the name of other player");
-            Debug.Log("his lobby: " + TestLobby.instance.GetCurrentLobby());
-            Debug.Log("His name is: " + TestLobby.instance.GetCurrentLobby().Players[(int)OwnerClientId].Data["PlayerName"].Value);
-            Debug.Log("his text object: " + playerName);
-            playerName.text = TestLobby.instance.GetCurrentLobby().Players[(int)OwnerClientId].Data["PlayerName"].Value; // Set other players name to their var
-            // Set player name
+            playerName.text = TestLobby.instance.GetCurrentLobby().
+                Players[(int)OwnerClientId].Data["PlayerName"].Value;
+            // Set other players name to their var
         }
 
         if (!IsOwner)
@@ -88,13 +94,13 @@ public class TopDownCharacterController : NetworkBehaviour
     }
     private void Update()
     {
-        if (!IsOwner)
+        if (!IsOwner || !GameFlow.instance.canPlayerMove)
             return;
 
         dir.Normalize();
         animator.SetBool("IsMoving", dir.magnitude > 0);
 
-        Vector3 direction = Vector3.forward * movementJoystick.Vertical + Vector3.right * movementJoystick.Horizontal;
+        Vector3 direction = Vector3.forward * movementJoystick.Vertical+ Vector3.right * movementJoystick.Horizontal;
 
         direction.Normalize();
 
@@ -117,7 +123,7 @@ public class TopDownCharacterController : NetworkBehaviour
     }
     private void FixedUpdate()
     {
-        if (!IsOwner)
+        if (!IsOwner || !GameFlow.instance.canPlayerMove)
             return;
 
         Vector2 newVector = new Vector2();
