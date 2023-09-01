@@ -24763,7 +24763,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 50310828}
         m_TargetAssemblyTypeName: TestRelay, Assembly-CSharp
-        m_MethodName: CreateRealyViaButton
+        m_MethodName: CreateRelayViaButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

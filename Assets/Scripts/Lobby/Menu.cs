@@ -18,6 +18,7 @@ public class Menu : MonoBehaviour
     [SerializeField] TextMeshProUGUI playersList;
     [SerializeField] Button startButton;
     [SerializeField] LoadingScene loadingScene;
+    [SerializeField] TMP_InputField connectLobbyInputField;
 
 
     [SerializeField] TMP_InputField lobbyNameHost;
@@ -65,12 +66,12 @@ public class Menu : MonoBehaviour
 
     public void ConnectToLobby()
     {
-        TMP_InputField inputText = inputField.GetComponent<TMP_InputField>();
-        if (inputText.text.Length > 0)
+        
+        if (connectLobbyInputField.text.Length > 0)
         {
-            Debug.Log("Trying to join by name: " + inputText.text + ".");
+            Debug.Log("Trying to join by name: " + connectLobbyInputField.text + ".");
             mesBox.DisplayMessage("Joining a lobby...");
-            lobby.JoinLobbyByName(inputText.text);
+            lobby.JoinLobbyByName(connectLobbyInputField.text);
         }
         else
         {

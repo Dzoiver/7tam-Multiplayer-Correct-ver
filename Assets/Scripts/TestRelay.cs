@@ -100,5 +100,12 @@ public class TestRelay : MonoBehaviour
             if (NetworkManager.Singleton != null)
                 Destroy(NetworkManager.Singleton.gameObject);
         }
+        if (NetworkManager.Singleton.IsClient)
+        {
+            NetworkManager.Singleton.Shutdown();
+            if (NetworkManager.Singleton != null)
+                Destroy(NetworkManager.Singleton.gameObject);
+        }
+        Debug.Log("disconnected from relay");
     }
 }

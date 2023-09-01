@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class GameFlow : MonoBehaviour
 {
@@ -69,12 +70,11 @@ public class GameFlow : MonoBehaviour
             ShowWinner();
     }
 
-    public void GoBackToLobbyScene()
+    public async void GoBackToLobbyScene()
     {
         // Disconnect from relay and close the lobby
-        Debug.Log("Trying to leave the lobby");
-        TestLobby.instance.LeaveLobby();
-        Debug.Log("Trying to leave the relay");
+        if (TestLobby.instance != null)
+            await TestLobby.instance.LeaveLobby();
         TestRelay.instance.DisconnectFromRelay();
         SceneManager.LoadScene(0);
     }

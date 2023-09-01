@@ -7,6 +7,7 @@ using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using Zenject;
 using TMPro;
+using System.Threading.Tasks;
 
 public class TestLobby : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class TestLobby : MonoBehaviour
     private bool isGameStarted = false;
     private float heartbeatTimer;
     private float lobbyUpdateTimer;
-    private string playerName = "No name";
+    private string playerName = "";
     string KEY_START_GAME = "StartGame_RelayCode";
     private string foundLobbyId = "";
 
@@ -39,6 +40,7 @@ public class TestLobby : MonoBehaviour
 
     public string GetPlayerName()
     {
+        Debug.Log("Giving name: " + playerName);
         return playerName;
     }
 
@@ -63,8 +65,7 @@ public class TestLobby : MonoBehaviour
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
 
         playerName = "Player" + Random.Range(0, 100);
-        playerNameText.text += playerName;
-        Debug.Log(playerName);
+        playerNameText.text = "Your name: " + playerName;
     }
 
     public Lobby GetCurrentLobby()
@@ -140,6 +141,7 @@ public class TestLobby : MonoBehaviour
     {
         try
         {
+            /*
             QueryLobbiesOptions queryLobbiesOptions = new QueryLobbiesOptions
             {
                 Count = 5,
@@ -147,8 +149,16 @@ public class TestLobby : MonoBehaviour
             QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync(queryLobbiesOptions);
 
             Debug.Log("Lobbies without filter found: " + queryResponse.Results.Count);
-
-            // FindLobbyWithName(lobbyName);
+            */
+            Debug.Log("Filtering by name: " + lobbyName + ".");
+            QueryLobbiesOptions queryLobbiesOptions = new QueryLobbiesOptions
+            {
+                Count = 1,
+                Filters = new List<QueryFilter> {
+                    new QueryFilter(QueryFilter.FieldOptions.Name, lobbyName, QueryFilter.OpOptions.EQ)
+                }
+            };
+            QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync(queryLobbiesOptions);
 
             if (queryResponse.Results.Count > 0)
             {
@@ -161,14 +171,25 @@ public class TestLobby : MonoBehaviour
                 Debug.Log("Lobby not found");
             }
 
-
-            JoinLobbyByIdOptions joinLobbyByIdOptions = new JoinLobbyByIdOptions
+            /*
+            if (queryResponse.Results.Count > 0)
             {
-                Player = GetPlayer()
-            };
+                foundLobbyId = queryResponse.Results[0].Id;
+            }
+            else
+            {
+                foundLobbyId = "";
+                menu.mesBox.DisplayMessage("Couldn't find a lobby", true);
+                Debug.Log("Lobby not found");
+            }
+            */
 
             if (foundLobbyId != "")
             {
+                JoinLobbyByIdOptions joinLobbyByIdOptions = new JoinLobbyByIdOptions
+                {
+                    Player = GetPlayer()
+                };
                 Debug.Log("Lobby was found, joining...");
                 joinedLobby = await Lobbies.Instance.JoinLobbyByIdAsync(foundLobbyId, joinLobbyByIdOptions);
                 Debug.Log("Checking the lobby: " + joinedLobby);
@@ -177,7 +198,7 @@ public class TestLobby : MonoBehaviour
 
                 Debug.Log("Joined Lobby by name " + lobbyName);
             }
-            Debug.Log("foundLobbyId = " + foundLobbyId);
+            Debug.Log("foundLobbyId is empty: " + foundLobbyId);
         } catch (LobbyServiceException e)
         {
             Debug.Log(e);
@@ -192,7 +213,7 @@ public class TestLobby : MonoBehaviour
             Debug.Log("Filtering by name: " + name + ".");
             QueryLobbiesOptions queryLobbiesOptions = new QueryLobbiesOptions
             {
-                Count = 5,
+                Count = 1,
                 Filters = new List<QueryFilter> {
                     new QueryFilter(QueryFilter.FieldOptions.Name, name, QueryFilter.OpOptions.EQ)
                 }
@@ -228,19 +249,19 @@ public class TestLobby : MonoBehaviour
         };
     }
 
-    public async void LeaveLobby()
+    public async Task LeaveLobby()
     {
         try
         {
             await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, AuthenticationService.Instance.PlayerId);
-            joinedLobby = null;
-            hostLobby = null;
-            Destroy(gameObject);
         }
         catch (LobbyServiceException e)
         {
             Debug.Log(e);
         }
+        joinedLobby = null;
+        hostLobby = null;
+        Destroy(gameObject);
     }
 
 

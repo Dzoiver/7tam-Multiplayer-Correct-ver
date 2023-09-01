@@ -22,11 +22,11 @@ public class TopDownCharacterController : NetworkBehaviour
     private float health = 100f;
     private float maxHealth = 100f;
     private int coinCount;
-    public string name = "player";
+    public string playerNickname = "player";
 
     public string Name
     {
-        get {return name;}
+        get {return playerNickname; }
     }
 
     public int CoinCount
@@ -62,9 +62,9 @@ public class TopDownCharacterController : NetworkBehaviour
 
         if (collision.gameObject.CompareTag("Coin"))
         {
+            collision.gameObject.SetActive(false);
             coinCount++;
             coinsUI.text = "Coins: " + coinCount.ToString();
-            collision.gameObject.SetActive(false);
         }
     }
 
@@ -95,8 +95,8 @@ public class TopDownCharacterController : NetworkBehaviour
 
         if (TestLobby.instance != null && !IsOwner)
         {
-            
-            name = TestLobby.instance.GetCurrentLobby().
+
+            playerNickname = TestLobby.instance.GetCurrentLobby().
                 Players[(int)OwnerClientId].Data["PlayerName"].Value;
             playerName.text = Name;
             // Set other players name to their var
